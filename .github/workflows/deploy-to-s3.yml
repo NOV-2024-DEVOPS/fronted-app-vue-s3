@@ -9,9 +9,6 @@ on:
       CONTENTFUL_ENVIRONMENT:
         required: true
         type: string
-      S3_ORIGIN_BUCKET:
-        required: true
-        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -20,6 +17,8 @@ on:
       AWS_DEFAULT_REGION:
         required: true
       AWS_SESSION_TOKEN:
+        required: true
+      S3_ORIGIN_BUCKET:
         required: true
 
 jobs:
@@ -51,14 +50,15 @@ jobs:
         env:
           CI_ENV: ${{ inputs.CI_ENV }}
           CONTENTFUL_ENVIRONMENT: ${{ inputs.CONTENTFUL_ENVIRONMENT }}
+          S3_ORIGIN_BUCKET:  "fronted-app-vue"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          aws-session-token: "IQoJb3JpZ2luX2VjELP//////////wEaCXVzLXdlc3QtMiJIMEYCIQCjhrAr0mZTQPWQHsDhtuhM09I47jm4DlgXIWkHdXk73QIhAMixFKVHreXxESa/Oj22L+LWzPwve/zj6PzxJr1feH01KrMCCEwQAhoMNzEzMDEwOTY2NDU3Igxerdb/0xJswSxDCvwqkAIl88BsEsFYde6gV6WVu0KX5brcgl/SrNvJa13tC8c6Kwsy+i68yiB4OEU6Wx/uM1mmRauPdspSgOHy54t0Kpx6lg9d49Z0z3p4GqN2EPuUT2O+MKit3oKQpYUFLg85bN7446WriU6g/vIC66JRydFt8eiDAlYVya5xCKljtLr5hKcLM1rAxIHHfUnegKSqKxLU65IAEdxcC4rR/dnIF606SQ213lCHnZ9HsoivCLfwA/IgeC/SNaoijwuow9PLTERQcJBs9VsGI+y13pWYaP+Mn1c7dx2TCmOnqXd+VcDVcuFopxIsIxuDDFl+0THt88gvnXQKFgRL9Mz1irOgImqfXw5+KanOCTPoKccsNpbL3jDu/+i5BjqcAWlpMz4aoJr0bb54/QeVUfamPTVYJ45b3UWVijy12vI6ukxTO909vWmwXLkgNLKc2U/Z8gXPRRjnzVGcE8JWJGY9gkDPUW9XBwIz4/vjfAenFOEFEHw9XvTYFNT+AL1RtaKOcCEtw51kDD8DP/iJAtkZmqAJ7LNoFmiZxGRnEoKJvbU95qkAtmpTEYMWGaIM177MaEUAe3bePUfIMQ=="
+          aws-region: "us-east-1"
 
       - name: Set execute permission for deploy.sh
         run: chmod +x ./.github/scripts/deploy.sh
@@ -67,4 +67,4 @@ jobs:
         run: ./.github/scripts/deploy.sh
         shell: bash
         env:
-          S3_ORIGIN_BUCKET: ${{ inputs.S3_ORIGIN_BUCKET }}
+          S3_ORIGIN_BUCKET: "fronted-app-vue"

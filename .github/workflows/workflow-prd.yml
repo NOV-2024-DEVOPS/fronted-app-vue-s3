@@ -1,5 +1,4 @@
 name: Github Action Workflow PROD
-
 on:
   push:
     branches:
@@ -10,31 +9,17 @@ on:
     types:
       - build-prod
   workflow_dispatch:
-
 concurrency:
   group: environment-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Determine S3 bucket
-        id: get-bucket
-        run: echo "bucket=$(case ${{ github.ref_name }} in
-                            main) echo 'german-fronted-app-main';;
-                            dev) echo 'german-fronted-app-dev';;
-                            test) echo 'german-fronted-app-test';;
-                          esac)" >> $GITHUB_ENV
-
-      - name: Deploy to S3
-        uses: ./.github/workflows/deploy-to-s3.yml
-        with:
-          CI_ENV: ${{ github.ref_name }}
-          CONTENTFUL_ENVIRONMENT: ${{ github.ref_name }}
-          S3_ORIGIN_BUCKET: ${{ env.bucket }}
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_DEFAULT_REGION: "us-east-1"
+  build-dev:
+    uses: ./.github/workflows/deploy-to-s3.yml
+    with:
+      CI_ENV: ${{ github.ref }}  # Esto pasará el nombre de la rama como valor
+      CONTENTFUL_ENVIRONMENT: ${{ github.ref }}  # Esto también puede ser la rama
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: "IQoJb3JpZ2luX2VjELP//////////wEaCXVzLXdlc3QtMiJIMEYCIQCjhrAr0mZTQPWQHsDhtuhM09I47jm4DlgXIWkHdXk73QIhAMixFKVHreXxESa/Oj22L+LWzPwve/zj6PzxJr1feH01KrMCCEwQAhoMNzEzMDEwOTY2NDU3Igxerdb/0xJswSxDCvwqkAIl88BsEsFYde6gV6WVu0KX5brcgl/SrNvJa13tC8c6Kwsy+i68yiB4OEU6Wx/uM1mmRauPdspSgOHy54t0Kpx6lg9d49Z0z3p4GqN2EPuUT2O+MKit3oKQpYUFLg85bN7446WriU6g/vIC66JRydFt8eiDAlYVya5xCKljtLr5hKcLM1rAxIHHfUnegKSqKxLU65IAEdxcC4rR/dnIF606SQ213lCHnZ9HsoivCLfwA/IgeC/SNaoijwuow9PLTERQcJBs9VsGI+y13pWYaP+Mn1c7dx2TCmOnqXd+VcDVcuFopxIsIxuDDFl+0THt88gvnXQKFgRL9Mz1irOgImqfXw5+KanOCTPoKccsNpbL3jDu/+i5BjqcAWlpMz4aoJr0bb54/QeVUfamPTVYJ45b3UWVijy12vI6ukxTO909vWmwXLkgNLKc2U/Z8gXPRRjnzVGcE8JWJGY9gkDPUW9XBwIz4/vjfAenFOEFEHw9XvTYFNT+AL1RtaKOcCEtw51kDD8DP/iJAtkZmqAJ7LNoFmiZxGRnEoKJvbU95qkAtmpTEYMWGaIM177MaEUAe3bePUfIMQ=="
+      AWS_DEFAULT_REGION: "us-east-1"
