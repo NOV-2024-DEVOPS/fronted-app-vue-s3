@@ -17,29 +17,39 @@ concurrency:
 
 jobs:
   deploy:
-    uses: ./.github/workflows/deploy-to-s3.yml
-    with:
-      CI_ENV: ${{ github.ref_name }}
-      CONTENTFUL_ENVIRONMENT: ${{ github.ref_name }}
-    secrets:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-      AWS_DEFAULT_REGION: "us-east-1"
-    env:
-      S3_ORIGIN_BUCKET: ${{ steps.determine-bucket.outputs.bucket }}
+    runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Determine S3 Bucket
         id: determine-bucket
         run: |
-          if [[ "${{ github.ref_name }}" == "main" ]]; then
-            echo "bucket=german-fronted-app-main" >> $GITHUB_ENV
-          elif [[ "${{ github.ref_name }}" == "dev" ]]; then
-            echo "bucket=german-fronted-app-dev" >> $GITHUB_ENV
-          elif [[ "${{ github.ref_name }}" == "test" ]]; then
-            echo "bucket=german-fronted-app-test" >> $GITHUB_ENV
-          else
-            echo "Error: Unexpected branch '${{ github.ref_name }}'. No deployment will occur."
-            exit 1
-          fi
+          case "${{ github.ref_name }}" in
+            main)
+              echo "bucket=${{ vars.BUCKET_MAIN }}" >> $GITHUB_ENV
+              ;;
+            dev)
+              echo "bucket=${{ vars.BUCKET_DEV }}" >> $GITHUB_ENV
+              ;;
+            test)
+              echo "bucket=${{ vars.BUCKET_TEST }}" >> $GITHUB_ENV
+              ;;
+            *)
+              echo "Error: Unexpected branch '${{ github.ref_name }}'. No deployment will occur."
+              exit 1
+              ;;
+          esac
+
+      - name: Call Deploy Workflow
+        uses: ./.github/workflows/deploy-to-s3.yml
+        with:
+          CI_ENV: ${{ github.ref_name }}
+          CONTENTFUL_ENVIRONMENT: ${{ github.ref_name }}
+          S3_ORIGIN_BUCKET: ${{ env.bucket }}
+        secrets:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_DEFAULT_REGION: "us-east-1"

@@ -9,6 +9,9 @@ on:
       CONTENTFUL_ENVIRONMENT:
         required: true
         type: string
+      S3_ORIGIN_BUCKET:
+        required: true
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -17,9 +20,6 @@ on:
       AWS_DEFAULT_REGION:
         required: true
       AWS_SESSION_TOKEN:
-        required: true
-    env:
-      S3_ORIGIN_BUCKET:
         required: true
 
 jobs:
@@ -67,4 +67,4 @@ jobs:
         run: ./.github/scripts/deploy.sh
         shell: bash
         env:
-          S3_ORIGIN_BUCKET: ${{ env.S3_ORIGIN_BUCKET }}
+          S3_ORIGIN_BUCKET: ${{ inputs.S3_ORIGIN_BUCKET }}
