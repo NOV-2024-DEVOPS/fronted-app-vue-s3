@@ -36,8 +36,26 @@ jobs:
         with:
           node-version: 18
 
+      - name: Install npm, clean cache and install n
+        run: |
+          npm -g install npm  # Actualiza npm
+          npm cache clean -f  # Limpia la caché de npm
+          npm install -g n    # Instala el gestor de versiones de Node.js
+
       - name: Install dependencies
         run: npm install
+
+      - name: Run SonarCloud Analysis
+        env:
+          SONAR_TOKEN: "89162795be33082944a3ede379c46ca140a69059"
+        run: |
+          npm install --global sonarqube-scanner
+          sonar-scanner \
+            -Dsonar.projectKey="NOV-2024-DEVOPS_fronted-app-vue-s3" \
+            -Dsonar.organization="nov-2024-devops" \
+            -Dsonar.host.url="https://sonarcloud.io" \
+            -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.sources=src
 
       - name: Set execute permission for build.sh
         run: chmod +x ./.github/scripts/build.sh
