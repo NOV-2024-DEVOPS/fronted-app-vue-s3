@@ -14,9 +14,11 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
-      AWS_DEFAULT_REGION:
+      AWS_REGION:
         required: true
       AWS_SESSION_TOKEN:
+        required: true
+      SONAR_TOKEN:
         required: true
 
 jobs:
@@ -39,6 +41,18 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Run SonarCloud Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          npm install --global sonarqube-scanner
+          sonar-scanner \
+            -Dsonar.projectKey="NOV-2024-DEVOPS_fronted-app-vue-s3" \
+            -Dsonar.organization="nov-2024-devops" \
+            -Dsonar.host.url="https://sonarcloud.io" \
+            -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.sources=src
+
       - name: Set execute permission for build.sh
         run: chmod +x ./.github/scripts/build.sh
 
@@ -56,7 +70,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Set execute permission for deploy.sh
         run: chmod +x ./.github/scripts/deploy.sh
