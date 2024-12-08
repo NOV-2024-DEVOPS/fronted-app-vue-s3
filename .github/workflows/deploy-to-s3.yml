@@ -18,8 +18,6 @@ on:
         required: true
       AWS_SESSION_TOKEN:
         required: true
-      S3_ORIGIN_BUCKET:
-        required: true
 
 jobs:
   build:
