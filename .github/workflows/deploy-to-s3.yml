@@ -36,12 +36,6 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install npm, clean cache and install n
-        run: |
-          npm -g install npm  # Actualiza npm
-          npm cache clean -f  # Limpia la caché de npm
-          npm install -g n    # Instala el gestor de versiones de Node.js
-
       - name: Install dependencies
         run: npm install
 
