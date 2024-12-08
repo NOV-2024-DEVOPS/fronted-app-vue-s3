@@ -1,4 +1,4 @@
-name: Github Action Workflow
+name: Github Action Workflow PROD
 
 on:
   push:
@@ -16,39 +16,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Determine S3 bucket
+        id: get-bucket
+        run: echo "bucket=$(case ${{ github.ref_name }} in
+                            main) echo 'german-fronted-app-main';;
+                            dev) echo 'german-fronted-app-dev';;
+                            test) echo 'german-fronted-app-test';;
+                          esac)" >> $GITHUB_ENV
 
-      - name: Determine S3 Bucket
-        id: determine-bucket
-        run: |
-          case "${{ github.ref_name }}" in
-            main)
-              echo "bucket=${{ vars.BUCKET_MAIN }}" >> $GITHUB_ENV
-              ;;
-            dev)
-              echo "bucket=${{ vars.BUCKET_DEV }}" >> $GITHUB_ENV
-              ;;
-            test)
-              echo "bucket=${{ vars.BUCKET_TEST }}" >> $GITHUB_ENV
-              ;;
-            *)
-              echo "Error: Unexpected branch '${{ github.ref_name }}'. No deployment will occur."
-              exit 1
-              ;;
-          esac
-
-      - name: Call Deploy Workflow
+      - name: Deploy to S3
         uses: ./.github/workflows/deploy-to-s3.yml
         with:
           CI_ENV: ${{ github.ref_name }}
           CONTENTFUL_ENVIRONMENT: ${{ github.ref_name }}
           S3_ORIGIN_BUCKET: ${{ env.bucket }}
-        secrets:
+        env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
